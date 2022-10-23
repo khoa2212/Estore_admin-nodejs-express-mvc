@@ -1,0 +1,291 @@
+<main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg ">
+    <!-- Navbar -->
+    {{>navBar breadcrumb='Products'}}
+    <!-- End Navbar -->
+
+    <div class="container-fluid py-4">
+        <!--Errors notification-->
+        <div class="row">
+            {{#if editProductError}}
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                    <span class="alert-icon align-middle"><span class="material-icons text-md">error</span></span>
+                    <span class="alert-text"><strong>Có lỗi xảy ra!</strong> Vui lòng thử lại sau</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            {{/if}}
+        </div>
+
+        <!--Main content-->
+        <div class="row">
+            <div class="col-12">
+                <div class="d-flex justify-content-start mb-3">
+                    <form action="" method="GET" class="d-flex justify-content-center" onsubmit="disableEmptyInputs(this)">
+                        <div class="input-group input-group-static mb-3">
+                            <label class="h6">Tìm kiếm sản phẩm theo tên</label>
+                            <input type="text" class="form-control" name="name">
+                        </div>
+                        <div class="me-2"><input type="submit" class="btn submit bg-gradient-success me-2" value="Tìm kiếm"></div>
+                    </form>
+                    <div class="me-2">
+                        <a class="btn bg-gradient-primary" data-bs-toggle="modal" data-bs-target="#addProductModal">Thêm sản phẩm</a>
+                    </div>
+                </div>
+                <div class="card my-4">
+                    <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+                        <div class="bg-gradient-primary shadow-primary border-radius-lg pt-4 pb-3">
+                            <h6 class="text-white text-capitalize ps-3">Bảng thông tin sản phẩm</h6>
+                        </div>
+                    </div>
+                    <div class="card-body px-0 pb-2">
+                        <div class="table-responsive p-0">
+                            <table class="table align-items-center mb-0">
+                                <thead>
+                                <tr>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Tên sản phẩm</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Nhà sản xuất</th>
+                                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Trạng thái</th>
+                                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Đơn giá</th>
+                                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Trạng thái khóa</th>
+                                    <th class="text-secondary opacity-7"></th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {{#each products}}
+                                <tr>
+                                    <td>
+                                        <div class="d-flex px-2 py-1">
+                                            <div>
+                                                <img src="{{LINK}}" class="avatar avatar-lg me-3 border-radius-lg" alt="product1">
+                                            </div>
+                                            <div class="d-flex flex-column justify-content-center">
+                                                <h6 class="mb-0 text-sm">{{LOAI.TEN_LOAI}} {{MAU}}</h6>
+                                                <p class="text-xs text-secondary mb-0">{{GIOI_TINH}}</p>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <p class="text-xs font-weight-bold mb-0">{{{THUONGHIEU.TEN_THUONG_HIEU}}}</p>
+                                    </td>
+                                    <td class="align-middle text-center text-sm">
+                                        {{#unless SO_LUONG}}
+                                            <span class="badge badge-sm bg-gradient-danger">Hết hàng</span>
+                                        {{else}}
+                                            <span class="badge badge-sm bg-gradient-success">Còn hàng</span>
+                                        {{/unless}}
+                                    </td>
+                                    <td class="align-middle text-center">
+                                        <span class="text-secondary text-xs font-weight-bold">{{GIA}}</span>
+                                    </td>
+                                    <td class="align-middle text-center">
+                                        <form method="post">
+                                            <input type="hidden" name="productId" value="{{QUANAO_ID}}"/>
+                                            {{#if DA_XOA}}
+                                                <button class="btn btn-icon btn-sm btn-outline-danger" type="submit" name="btn" value="unlock">
+                                                    <span class="btn-inner--icon"><span class="material-icons-round">lock</span></span>
+                                                </button>
+                                            {{else}}
+                                                <button class="btn btn-icon btn-sm btn-outline-success" type="submit" name="btn" value="lock">
+                                                    <span class="btn-inner--icon"><span class="material-icons-round">lock_open</span></span>
+                                                </button>
+                                            {{/if}}
+                                        </form>
+                                    </td>
+                                    <td class="align-middle">
+                                        <span data-bs-toggle="modal" data-bs-target="#editModal{{QUANAO_ID}}">
+                                            <a href="javascript:;" class="text-secondary font-weight-bold text-xs"
+                                              data-bs-toggle="tooltip" data-bs-placement="bottom"
+                                              title="Edit this product" data-container="body" data-animation="true"
+                                              data-original-title="Edit">Edit</a>
+                                        </span>
+                                    </td>
+                                </tr>
+                                {{/each}}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <!--Product page navigation-->
+                {{>pagination paginateInfo}}
+                <!--Product page navigation end-->
+            </div>
+            <br>
+
+            <br>
+        </div>
+        {{> footer}}
+    </div>
+</main>
+
+{{> settings}}
+
+<!--Modal thêm sản phẩm mới-->
+<div class="modal fade" id="addProductModal" tabindex="-1" aria-labelledby="modal-form"
+     style="display: none;" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-md" role="document">
+        <div class="modal-content">
+                <div class="modal-body p-0">
+                    <div class="card card-plain">
+                        <div class="card-header pb-0 text-left">
+                            <h5 class="">Thêm sản phẩm mới</h5>
+                            <p class="mb-0">Nhập các thông tin cần thiết và sản phẩm sẽ được lưu lại
+                                ngay!</p>
+                        </div>
+                        <div class="card-body">
+                            <form id="addProduct" method="post">
+                                <div class="input-group input-group-lg input-group-outline my-3">
+                                    <label class="form-label">Loại sản phẩm</label>
+                                    <input type="text" class="form-control form-control-lg" name="productType"
+                                           onfocus="focused(this)" onfocusout="defocused(this)">
+                                </div>
+                                <div class="input-group input-group-lg input-group-outline my-3">
+                                    <label class="form-label">Màu sắc</label>
+                                    <input type="text" class="form-control form-control-lg" name="color"
+                                           onfocus="focused(this)" onfocusout="defocused(this)">
+                                </div>
+                                <div class="input-group input-group-lg input-group-outline my-3">
+                                    <label class="form-label">Thương hiệu</label>
+                                    <input type="text" class="form-control form-control-lg" name="brand"
+                                           onfocus="focused(this)" onfocusout="defocused(this)">
+                                </div>
+                                <div class="input-group input-group-lg input-group-outline my-3">
+                                    <label class="form-label">Giới tính phù hợp</label>
+                                    <input type="text" class="form-control form-control-lg" name="gender"
+                                           onfocus="focused(this)" onfocusout="defocused(this)">
+                                </div>
+                                <div class="input-group input-group-lg input-group-outline my-3">
+                                    <label class="form-label">Số lượng</label>
+                                    <input type="number" class="form-control form-control-lg" name="quantity"
+                                           onfocus="focused(this)" onfocusout="defocused(this)" min="1">
+                                </div>
+                                <div class="input-group input-group-lg input-group-outline my-3">
+                                    <label class="form-label">Đơn giá</label>
+                                    <input type="number" class="form-control form-control-lg" name="price"
+                                           onfocus="focused(this)" onfocusout="defocused(this)" min="1000" step="1000">
+                                </div>
+                                <label class="form-label">Hình ảnh</label>
+                            </form>
+                            <form id="upload-widget" method="post" action="/products/upload" class="dropzone"></form>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" name="btn" value="add" form="addProduct" class="btn bg-gradient-primary">Thêm sản phẩm</button>
+                    <button type="button" class="btn btn-link  ml-auto" data-bs-dismiss="modal" onclick="cleanAddProductModal()">Hủy</button>
+                </div>
+        </div>
+    </div>
+</div>
+
+<!--Modal xem chi tiết sản phẩm-->
+{{#each products}}
+    <div class="modal fade" id="editModal{{QUANAO_ID}}" tabindex="-1" role="dialog" aria-labelledby="editModal" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title font-weight-bold" id="modal-title-default">Chỉnh sửa sản phẩm</h5>
+                    <button type="button" style="background-color: black;" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form method="post">
+                    <div class="modal-body">
+                            <div class="input-group input-group-static mb-4">
+                                <label>Tên sản phẩm</label>
+                                <input type="text" name="productType" class="form-control" value="{{LOAI.TEN_LOAI}}">
+                            </div>
+                            <div class="input-group input-group-static mb-4">
+                                <label>Màu sắc</label>
+                                <input type="text" name="color" class="form-control" value="{{MAU}}">
+                            </div>
+                            <div class="input-group input-group-static mb-4">
+                                <label>Giới tính phù hợp</label>
+                                <input type="text" name="gender" class="form-control" value="{{GIOI_TINH}}">
+                            </div>
+                            <div class="input-group input-group-static mb-4">
+                                <label>Thương hiệu</label>
+                                <input type="text" name="brand" class="form-control" value="{{THUONGHIEU.TEN_THUONG_HIEU}}">
+                            </div>
+                            <div class="input-group input-group-static mb-4">
+                                <label>Số lượng</label>
+                                <input type="number" min="0" name="quantity" class="form-control" value="{{SO_LUONG}}">
+                            </div>
+                            <div class="input-group input-group-static mb-4">
+                                <label>Đơn giá</label>
+                                <input type="number" min="0" step="1000" name="price" class="form-control" value="{{GIA}}">
+                            </div>
+                    </div>
+                    <div class="modal-footer">
+                        <input type="hidden" name="productId" value="{{QUANAO_ID}}"/>
+                        <button type="submit" name="btn" value='save' class="btn bg-gradient-success">Lưu thay đổi</button>
+                        <button type="button" class="btn btn-link  ml-auto" data-bs-dismiss="modal">Hủy</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{{/each}}
+<!--   Core JS Files   -->
+<script src="/javascripts/core/popper.min.js"></script>
+<script src="/javascripts/core/bootstrap.min.js"></script>
+<script src="/javascripts/plugins/perfect-scrollbar.min.js"></script>
+<script src="/javascripts/plugins/smooth-scrollbar.min.js"></script>
+<script>
+    var win = navigator.platform.indexOf('Win') > -1;
+    if (win && document.querySelector('#sidenav-scrollbar')) {
+        var options = {
+            damping: '0.5'
+        }
+        Scrollbar.init(document.querySelector('#sidenav-scrollbar'), options);
+    }
+</script>
+
+
+
+<!-- Github buttons -->
+<script async defer src="https://buttons.github.io/buttons.js"></script>
+<!-- Control Center for Material Dashboard: parallax effects, scripts for the example pages etc -->
+<script src="/javascripts/material-dashboard.min.js?v=3.0.0"></script>
+<script src="/javascripts/util.js"></script>
+<!--dropzone script-->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.5.1/min/dropzone.min.js"></script>
+<script type="text/javascript">
+    Dropzone.options.uploadWidget = {
+        paramName: 'file',
+        maxFiles: 1,
+        dictDefaultMessage: 'Drag an image here to upload, or click to select one',
+        headers: {
+            'x-csrf-token': document.querySelector('meta[name=csrf-token]').getAttributeNode('content').value,
+        },
+        acceptedFiles: 'image/*',
+        init: function() {
+            this.on('success', function(file, resp){
+                console.log(file);
+                console.log(resp);
+            });
+            this.on('thumbnail', function(file) {
+                if (file.accepted !== false) {
+                    if (file.width < 640 || file.height < 480) {
+                        file.rejectDimensions();
+                    } else {
+                        file.acceptDimensions();
+                    }
+                }
+            });
+        },
+        accept: function(file, done) {
+            file.acceptDimensions = done;
+            file.rejectDimensions = function() {
+                done('The image must be at least 640 x 480px');
+            };
+        }
+    };
+</script>
+<script type="text/javascript">
+    function cleanAddProductModal(){
+        Dropzone.forElement('#upload-widget').removeAllFiles(true);
+        if(imagePath){
+            imagePath = undefined;
+        }
+    }
+</script>
